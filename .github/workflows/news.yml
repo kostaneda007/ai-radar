@@ -1,0 +1,61 @@
+name: AI Radar
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install libraries
+        run: pip install --quiet feedparser openai requests
+
+      - name: Create config.py
+        env:
+          TG: ${{ secrets.TG_TOKEN }}
+          LLM: ${{ secrets.LLM_KEY }}
+          VK: ${{ secrets.VK_TOKEN }}
+        run: |
+          cat > config.py << CFGEOF
+          TELEGRAM_BOT_TOKEN = "$TG"
+          TELEGRAM_CHANNEL_ID = "@only_his_own_1"
+          TELEGRAM_CHANNEL_LINK = "https://t.me/only_his_own_1"
+          LLM_API_KEY = "$LLM"
+          LLM_BASE_URL = "https://openrouter.ai/api/v1"
+          MODEL_NAME = "openrouter/free"
+          VK_TOKEN = "$VK"
+          VK_GROUP_ID = "67225562"
+          RSS_FEEDS = {
+          "ai": ["https://techcrunch.com/category/artificial-intelligence/feed/", "https://www.technologyreview.com/feed/"],
+          "startups": ["https://techcrunch.com/category/startups/feed/"],
+          "gadgets": ["https://www.theverge.com/rss/index.xml"],
+          "dev": ["https://hnrss.org/frontpage"],
+          "deep_tech": ["https://feeds.arstechnica.com/arstechnica/index"],
+          "tech_society": ["https://www.wired.com/feed/rss"],
+          "tech_main": ["https://techcrunch.com/feed/"],
+          }
+          POSTS_PER_RUN = 1
+          DELAY_BETWEEN_POSTS = 60
+          CFGEOF
+
+      - name: Run bot
+        run: python bot.py
+
+      - name: Save history
+        run: |
+          git config user.name "ai-radar-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add published_news.json
+          git diff --cached --quiet || git commit -m "update history"
+          git push
