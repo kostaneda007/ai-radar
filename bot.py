@@ -182,6 +182,28 @@ def mark_published(published, news):
         if key not in published:
             published.append(key)
 
+def save_to_site(news, text, img):
+    try:
+        data = []
+        if os.path.exists("news.json"):
+            try:
+                data = json.load(open("news.json", encoding="utf-8"))
+            except Exception:
+                data = []
+        entry = {
+            "title": news["title"],
+            "text": text,
+            "link": news["link"],
+            "category": news["category"],
+            "date": datetime.now().strftime("%d.%m.%Y %H:%M"),
+            "image": os.path.basename(img) if img and os.path.exists(img) else None,
+        }
+        data.insert(0, entry)
+        json.dump(data[:100], open("news.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
+        print("💾 Сохранено для сайта")
+    except Exception as e:
+        print("Ошибка сохранения для сайта:", e)
+
 def main():
     print(f"🚀 Запуск: {datetime.now()}")
     news_candidates = get_news()
@@ -211,9 +233,8 @@ def main():
         if tg or vk:
             mark_published(published, news)
             save_published(published)
+            save_to_site(news, text, img)
             posted_count += 1
-        if img and os.path.exists(img):
-            os.remove(img)
         if posted_count < config.POSTS_PER_RUN:
             time.sleep(config.DELAY_BETWEEN_POSTS)
     print(f"\n✅ Готово: {datetime.now()} | Опубликовал {posted_count} постов")
