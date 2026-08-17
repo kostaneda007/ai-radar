@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Radar — новости технологий</title>
+<style>
+  :root { --bg:#0d1117; --card:#161b22; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; }
+  header { padding:40px 20px; text-align:center; border-bottom:1px solid #21262d; }
+  header h1 { font-size:32px; }
+  header p { color:var(--muted); margin-top:8px; }
+  main { max-width:720px; margin:0 auto; padding:24px 16px 60px; }
+  .card { background:var(--card); border:1px solid #21262d; border-radius:14px; margin-bottom:20px; overflow:hidden; }
+  .card img { width:100%; height:260px; object-fit:cover; display:block; }
+  .body { padding:18px 20px 20px; }
+  .meta { display:flex; gap:10px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--muted); }
+  .tag { background:#1f6feb33; color:var(--accent); padding:3px 10px; border-radius:20px; }
+  .text { white-space:pre-line; line-height:1.55; font-size:15px; }
+  a.src { display:inline-block; margin-top:12px; color:var(--accent); text-decoration:none; font-size:14px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📡 AI Radar</h1>
+  <p>Авторские новости технологий на русском — AI, стартапы, гаджеты</p>
+</header>
+<main id="feed"><p style="text-align:center;color:#8b949e">Загрузка...</p></main>
+<script>
+fetch('news.json?ts=' + Date.now())
+  .then(r => r.json())
+  .then(posts => {
+    const feed = document.getElementById('feed');
+    if (!posts.length) { feed.innerHTML = '<p style="text-align:center">Пока нет постов</p>'; return; }
+    feed.innerHTML = posts.map(p => `
+      <article class="card">
+        ${p.image ? `<img src="images/${p.image}" alt="">` : ''}
+        <div class="body">
+          <div class="meta"><span class="tag">${p.category}</span><span>${p.date}</span></div>
+          <div class="text">${p.text}</div>
+          <a class="src" href="${p.link}" target="_blank">Читать источник →</a>
+        </div>
+      </article>`).join('');
+  })
+  .catch(() => { document.getElementById('feed').innerHTML = '<p style="text-align:center">Ошибка загрузки</p>'; });
+</script>
+</body>
+</html>
