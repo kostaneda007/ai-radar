@@ -28,17 +28,23 @@
   h1{font-family:var(--mono);font-size:40px;letter-spacing:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{font-family:var(--mono);color:var(--muted);margin-top:10px;font-size:14px}
   main{max-width:760px;margin:0 auto;padding:28px 16px 70px}
-  .card{border-radius:24px;margin-bottom:26px;overflow:hidden;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
+  .card{border-radius:24px;margin-bottom:26px;overflow:hidden;transition:transform .35s ease,box-shadow .35s ease}
   .card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(77,214,255,.15),0 0 0 1px rgba(77,214,255,.25)}
   .imgwrap{position:relative}
   .imgwrap img{width:100%;height:280px;object-fit:cover;display:block}
   .imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,7,15,.85))}
-  .body{padding:20px 24px 24px}
+  .body{padding:20px 24px 22px}
   .meta{display:flex;gap:12px;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:12px;color:var(--muted)}
   .tag{color:var(--accent);border:1px solid rgba(77,214,255,.35);background:rgba(77,214,255,.08);padding:3px 12px;border-radius:20px}
   .text{white-space:pre-line;line-height:1.6;font-size:15px;color:#dbe7f7}
-  a.src{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:13px;color:var(--accent2);text-decoration:none;border-bottom:1px dashed rgba(167,139,250,.5);transition:color .2s}
+  .actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+  a.src{font-family:var(--mono);font-size:13px;color:var(--accent2);text-decoration:none;border-bottom:1px dashed rgba(167,139,250,.5);transition:color .2s}
   a.src:hover{color:var(--accent)}
+  .socials{display:flex;gap:8px;margin-left:auto}
+  .soc{font-family:var(--mono);font-size:12px;text-decoration:none;padding:5px 14px;border-radius:14px;transition:transform .2s ease,box-shadow .2s ease}
+  .soc.tg{color:var(--accent);background:rgba(77,214,255,.08);border:1px solid rgba(77,214,255,.35)}
+  .soc.vk{color:var(--accent2);background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.35)}
+  .soc:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(77,214,255,.2)}
   .status{text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);padding:10px}
 </style>
 </head>
@@ -68,7 +74,13 @@ fetch('news.json?ts=' + Date.now())
         <div class="body">
           <div class="meta"><span class="tag">#${p.category}</span><span>${p.date}</span></div>
           <div class="text">${p.text}</div>
-          <a class="src" href="${p.link}" target="_blank">read_source() →</a>
+          <div class="actions">
+            <a class="src" href="${p.link}" target="_blank">read_source() →</a>
+            <span class="socials">
+              <a class="soc tg" href="https://t.me/only_his_own_1" target="_blank">TG ↗</a>
+              <a class="soc vk" href="https://vk.com/club67225562" target="_blank">VK ↗</a>
+            </span>
+          </div>
         </div>
       </article>`).join('');
   })
