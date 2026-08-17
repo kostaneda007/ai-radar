@@ -56,6 +56,7 @@ jobs:
         run: |
           git config user.name "ai-radar-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add published_news.json
-          git diff --cached --quiet || git commit -m "update history"
+          git add published_news.json news.json
+          git add images || true
+          git diff --cached --quiet || git commit -m "update news"
           git push
