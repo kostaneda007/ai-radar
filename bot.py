@@ -1,7 +1,7 @@
-import feedparser, requests, time, json, os, re, random
+import feedparser, requests, time, json, os, re, random, hashlib
 from openai import OpenAI
 from datetime import datetime
-import config, hashlib
+import config
 
 feedparser.USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 import socket
@@ -28,6 +28,13 @@ def norm_title(t):
 def norm_link(u):
     return (u or '').split('?')[0].rstrip('/')
 
+def clean_russian_text(text):
+    if not text:
+        return text
+    text = re.sub(r'[一-鿿-䶿]+', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
 def sanitize_post(text):
     if not text:
         return None
@@ -40,13 +47,6 @@ def sanitize_post(text):
     if len(text) > 1000:
         text = text[:1000].rsplit('\n', 1)[0]
     return text.strip()
-
-def clean_russian_text(text):
-    if not text:
-        return text
-    text = re.sub(r'[一-鿿㐀-䶿]+', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
 
 def get_news():
     all_news = []
@@ -114,16 +114,15 @@ def rewrite(news):
             )
             return sanitize_post(clean_russian_text(resp.choices[0].message.content))
         except Exception as e:
-            print(f"⚠️ Попытка {attempt+1}/3 не удалась: {str(e)[:50]}")
+            print(f"⚠️ Попытка {attempt+1}/3 не удалась: {str(e)[:60]}")
             if attempt < 2:
-                time.sleep(30)
+                time.sleep(15)
     return None
 
 def generate_image_prompt(news):
     prompt = f"Create short English prompt (2 sentences) for digital art about: {news['title']}. Modern, futuristic, bright, NO text. Only the prompt."
-    for attempt in range(3):
-        try:
-            resp = client.chat.completions.create(
+    try:
+        resp = client.chat.completions.create(
             model=config.MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7
@@ -191,11 +190,6 @@ def post_vk(text):
         print(f"VK exception: {e}")
         return False
 
-def mark_published(published, news):
-    for key in (news['id'], news['tkey'], news['lkey']):
-        if key not in published:
-            published.append(key)
-
 def save_to_site(news, text, img):
     try:
         data = []
@@ -218,6 +212,11 @@ def save_to_site(news, text, img):
     except Exception as e:
         print("Ошибка сохранения для сайта:", e)
 
+def mark_published(published, news):
+    for key in (news['id'], news['tkey'], news['lkey']):
+        if key not in published:
+            published.append(key)
+
 def main():
     print(f"🚀 Запуск: {datetime.now()}")
     news_candidates = get_news()
@@ -233,7 +232,7 @@ def main():
         print(f"\n⚙️ Пробую: {news['title'][:50]}...")
         text = rewrite(news)
         if not text:
-            print(f"⏭️ Пропускаю (AI заблокировал): {news['title'][:40]}")
+            print(f"⏭️ Пропускаю: {news['title'][:40]}")
             mark_published(published, news)
             save_published(published)
             continue
@@ -243,7 +242,7 @@ def main():
         tg = post_tg(text, img)
         time.sleep(2)
         vk = post_vk(text)
-        print(f"TG: {'✅' if tg else '❌'} | VK: {'✅' if vk else '❌'} | Img: {'✅' if img else '➖'}")
+        print(f"TG: {tg} | VK: {vk} | Img: {bool(img)}")
         if tg or vk:
             mark_published(published, news)
             save_published(published)
