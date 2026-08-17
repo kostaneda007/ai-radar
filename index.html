@@ -27,6 +27,10 @@
   .hero{max-width:760px;margin:0 auto;padding:34px 24px 26px;border-radius:0 0 24px 24px;text-align:center}
   h1{font-family:var(--mono);font-size:40px;letter-spacing:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
   .sub{font-family:var(--mono);color:var(--muted);margin-top:10px;font-size:14px}
+  .filters{max-width:760px;margin:20px auto 0;padding:0 16px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+  .chip{font-family:var(--mono);font-size:12px;color:var(--muted);padding:7px 16px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);cursor:pointer;transition:.2s;backdrop-filter:blur(10px)}
+  .chip:hover{color:var(--text);transform:translateY(-2px)}
+  .chip.active{color:var(--accent);border-color:rgba(77,214,255,.5);background:rgba(77,214,255,.12)}
   main{max-width:760px;margin:0 auto;padding:28px 16px 70px}
   .card{border-radius:24px;margin-bottom:26px;overflow:hidden;transition:transform .35s ease,box-shadow .35s ease}
   .card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(77,214,255,.15),0 0 0 1px rgba(77,214,255,.25)}
@@ -57,33 +61,45 @@
 </header>
 <div class="hero glass">
   <h1>AI RADAR</h1>
-  <p class="sub">// авторские tech-новости на русском · AI / стартапы / гаджеты</p>
+  <p class="sub">// авторские tech-новости на русском · выбери тему</p>
 </div>
 
+<div class="filters" id="filters"></div>
 <main id="feed"><p class="status">загрузка ленты...</p></main>
 
 <script>
+const CATS = {all:'все', ai:'AI', startups:'стартапы', gadgets:'гаджеты', dev:'разработка', deep_tech:'диптех', tech_society:'общество', tech_main:'технологии'};
+let posts = [], cur = 'all';
+
+function renderChips(){
+  document.getElementById('filters').innerHTML = Object.entries(CATS).map(([k,v]) =>
+    `<button class="chip ${k===cur?'active':''}" onclick="setCat('${k}')">${v}</button>`).join('');
+}
+function setCat(k){ cur = k; renderChips(); renderFeed(); }
+function renderFeed(){
+  const list = posts.filter(p => cur==='all' || p.category===cur);
+  const feed = document.getElementById('feed');
+  if (!list.length) { feed.innerHTML = '<p class="status">// в этой теме пока нет постов</p>'; return; }
+  feed.innerHTML = list.map(p => `
+    <article class="card glass">
+      ${p.image ? `<div class="imgwrap"><img src="images/${p.image}" alt=""></div>` : ''}
+      <div class="body">
+        <div class="meta"><span class="tag">#${p.category}</span><span>${p.date}</span></div>
+        <div class="text">${p.text}</div>
+        <div class="actions">
+          <a class="src" href="${p.link}" target="_blank">прочитать источник →</a>
+          <span class="socials">
+            <a class="soc tg" href="https://t.me/only_his_own_1" target="_blank">Телеграм ↗</a>
+            <a class="soc vk" href="https://vk.com/club67225562" target="_blank">Вконтакте ↗</a>
+          </span>
+        </div>
+      </div>
+    </article>`).join('');
+}
+
 fetch('news.json?ts=' + Date.now())
   .then(r => r.json())
-  .then(posts => {
-    const feed = document.getElementById('feed');
-    if (!posts.length) { feed.innerHTML = '<p class="status">// пока нет постов</p>'; return; }
-    feed.innerHTML = posts.map(p => `
-      <article class="card glass">
-        ${p.image ? `<div class="imgwrap"><img src="images/${p.image}" alt=""></div>` : ''}
-        <div class="body">
-          <div class="meta"><span class="tag">#${p.category}</span><span>${p.date}</span></div>
-          <div class="text">${p.text}</div>
-          <div class="actions">
-            <a class="src" href="${p.link}" target="_blank">прочитать источник →</a>
-            <span class="socials">
-              <a class="soc tg" href="https://t.me/only_his_own_1" target="_blank">Телеграм ↗</a>
-              <a class="soc vk" href="https://vk.com/club67225562" target="_blank">Вконтакте ↗</a>
-            </span>
-          </div>
-        </div>
-      </article>`).join('');
-  })
+  .then(data => { posts = data; renderChips(); renderFeed(); })
   .catch(() => { document.getElementById('feed').innerHTML = '<p class="status">// ошибка загрузки ленты</p>'; });
 </script>
 </body>
