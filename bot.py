@@ -1,7 +1,7 @@
 import feedparser, requests, time, json, os, re, random
 from openai import OpenAI
 from datetime import datetime
-import config
+import config, hashlib
 
 feedparser.USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
 import socket
@@ -121,7 +121,7 @@ def generate_image_prompt(news):
 
 def generate_image(prompt, news_id):
     try:
-        safe = re.sub(r'[^a-zA-Z0-9]+', '_', news_id)[:40] or "img"
+        safe = hashlib.sha1(news_id.encode('utf-8')).hexdigest()[:24]
         path = f"{IMAGES_DIR}/{safe}.jpg"
         encoded = requests.utils.quote(prompt)
         seed = random.randint(1, 999999)
