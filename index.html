@@ -3,47 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Radar — новости технологий</title>
+<title>AI Radar — tech news</title>
 <style>
-  :root { --bg:#0d1117; --card:#161b22; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:var(--bg); color:var(--text); font-family:-apple-system,'Segoe UI',Roboto,sans-serif; }
-  header { padding:40px 20px; text-align:center; border-bottom:1px solid #21262d; }
-  header h1 { font-size:32px; }
-  header p { color:var(--muted); margin-top:8px; }
-  main { max-width:720px; margin:0 auto; padding:24px 16px 60px; }
-  .card { background:var(--card); border:1px solid #21262d; border-radius:14px; margin-bottom:20px; overflow:hidden; }
-  .card img { width:100%; height:260px; object-fit:cover; display:block; }
-  .body { padding:18px 20px 20px; }
-  .meta { display:flex; gap:10px; align-items:center; margin-bottom:10px; font-size:13px; color:var(--muted); }
-  .tag { background:#1f6feb33; color:var(--accent); padding:3px 10px; border-radius:20px; }
-  .text { white-space:pre-line; line-height:1.55; font-size:15px; }
-  a.src { display:inline-block; margin-top:12px; color:var(--accent); text-decoration:none; font-size:14px; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#05070f; --text:#eaf2ff; --muted:#8fa3c0;
+    --accent:#4dd6ff; --accent2:#a78bfa;
+    --mono:ui-monospace,'JetBrains Mono',SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  html,body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;overflow-x:hidden}
+  .blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:.45;z-index:-1;animation:float 20s ease-in-out infinite}
+  .b1{width:540px;height:540px;background:#1b3cff;top:-180px;left:-140px}
+  .b2{width:480px;height:480px;background:#7c3aed;bottom:-160px;right:-120px;animation-delay:-7s}
+  .b3{width:400px;height:400px;background:#00e0ff;top:42%;left:62%;opacity:.22;animation-delay:-13s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(50px,-35px) scale(1.1)}}
+  .glass{background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.03));backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);border:1px solid rgba(255,255,255,.12)}
+  header{max-width:760px;margin:40px auto 0;border-radius:16px 16px 0 0;padding:12px 16px;display:flex;align-items:center;gap:8px;border-bottom:none}
+  .dots span{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:6px}
+  .r{background:#ff5f57}.y{background:#febc2e}.g{background:#28c840}
+  .term-title{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .cursor{color:var(--accent);animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hero{max-width:760px;margin:0 auto;padding:34px 24px 26px;border-radius:0 0 24px 24px;text-align:center}
+  h1{font-family:var(--mono);font-size:40px;letter-spacing:6px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-family:var(--mono);color:var(--muted);margin-top:10px;font-size:14px}
+  main{max-width:760px;margin:0 auto;padding:28px 16px 70px}
+  .card{border-radius:24px;margin-bottom:26px;overflow:hidden;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
+  .card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(77,214,255,.15),0 0 0 1px rgba(77,214,255,.25)}
+  .imgwrap{position:relative}
+  .imgwrap img{width:100%;height:280px;object-fit:cover;display:block}
+  .imgwrap::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,7,15,.85))}
+  .body{padding:20px 24px 24px}
+  .meta{display:flex;gap:12px;align-items:center;margin-bottom:12px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .tag{color:var(--accent);border:1px solid rgba(77,214,255,.35);background:rgba(77,214,255,.08);padding:3px 12px;border-radius:20px}
+  .text{white-space:pre-line;line-height:1.6;font-size:15px;color:#dbe7f7}
+  a.src{display:inline-block;margin-top:14px;font-family:var(--mono);font-size:13px;color:var(--accent2);text-decoration:none;border-bottom:1px dashed rgba(167,139,250,.5);transition:color .2s}
+  a.src:hover{color:var(--accent)}
+  .status{text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);padding:10px}
 </style>
 </head>
 <body>
-<header>
-  <h1>📡 AI Radar</h1>
-  <p>Авторские новости технологий на русском — AI, стартапы, гаджеты</p>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+
+<header class="glass">
+  <div class="dots"><span class="r"></span><span class="y"></span><span class="g"></span></div>
+  <div class="term-title">~/ai-radar $ tail -f news.feed <span class="cursor">▊</span></div>
 </header>
-<main id="feed"><p style="text-align:center;color:#8b949e">Загрузка...</p></main>
+<div class="hero glass">
+  <h1>AI RADAR</h1>
+  <p class="sub">// авторские tech-новости на русском · AI / стартапы / гаджеты</p>
+</div>
+
+<main id="feed"><p class="status">загрузка ленты...</p></main>
+
 <script>
 fetch('news.json?ts=' + Date.now())
   .then(r => r.json())
   .then(posts => {
     const feed = document.getElementById('feed');
-    if (!posts.length) { feed.innerHTML = '<p style="text-align:center">Пока нет постов</p>'; return; }
+    if (!posts.length) { feed.innerHTML = '<p class="status">// пока нет постов</p>'; return; }
     feed.innerHTML = posts.map(p => `
-      <article class="card">
-        ${p.image ? `<img src="images/${p.image}" alt="">` : ''}
+      <article class="card glass">
+        ${p.image ? `<div class="imgwrap"><img src="images/${p.image}" alt=""></div>` : ''}
         <div class="body">
-          <div class="meta"><span class="tag">${p.category}</span><span>${p.date}</span></div>
+          <div class="meta"><span class="tag">#${p.category}</span><span>${p.date}</span></div>
           <div class="text">${p.text}</div>
-          <a class="src" href="${p.link}" target="_blank">Читать источник →</a>
+          <a class="src" href="${p.link}" target="_blank">read_source() →</a>
         </div>
       </article>`).join('');
   })
-  .catch(() => { document.getElementById('feed').innerHTML = '<p style="text-align:center">Ошибка загрузки</p>'; });
+  .catch(() => { document.getElementById('feed').innerHTML = '<p class="status">// ошибка загрузки ленты</p>'; });
 </script>
 </body>
 </html>
