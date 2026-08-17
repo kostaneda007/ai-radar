@@ -138,9 +138,13 @@ def generate_image(prompt, news_id):
         path = f"{IMAGES_DIR}/{safe}.jpg"
         encoded = requests.utils.quote(prompt)
         seed = random.randint(1, 999999)
-        url = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=768&nologo=true&seed={seed}"
-        print("🎨 Генерирую картинку...")
-        r = requests.get(url, timeout=180)
+        url_nb = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=768&nologo=true&seed={seed}&model=nano-banana"
+        url_fb = f"https://image.pollinations.ai/prompt/{encoded}?width=1024&height=768&nologo=true&seed={seed}"
+        print("🎨 Генерирую картинку (nano-banana)...")
+        r = requests.get(url_nb, timeout=180)
+        if r.status_code != 200 or len(r.content) < 1000:
+            print("🎨 nano-banana недоступен, пробую flux...")
+            r = requests.get(url_fb, timeout=180)
         if r.status_code == 200 and len(r.content) > 1000:
             with open(path, 'wb') as f:
                 f.write(r.content)
