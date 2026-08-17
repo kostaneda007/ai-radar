@@ -85,31 +85,45 @@ def get_news():
     return all_news[:8]
 
 def rewrite(news):
-    system_prompt = """Ты — опытный русскоязычный tech-журналист.
-ЖЁСТКОЕ ПРАВИЛО: пиши ТОЛЬКО на русском языке, ТОЛЬКО кириллица и эмодзи.
-СТРОГО ЗАПРЕЩЕНО: иероглифы, китайские/японские/корейские символы.
-Если мысль приходит на другом языке — переформулируй на русском.
-Пиши живо, авторским стилем, без канцелярита. До 800 символов."""
-    user_prompt = f"News: {news['title']}. Summary: {news['summary']}. Source: {news['link']}\n\nНапиши КОРОТКИЙ АВТОРСКИЙ пост НА РУССКОМ. НЕ перевод! Твой заголовок, твоя структура, твой анализ. Формат: 🔥 [заголовок] [2 коротких абзаца] 💡 [инсайт] 👇 [вопрос] #хештеги"
-    try:
-        resp = client.chat.completions.create(
-            model=config.MODEL_NAME,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.9,
-            max_tokens=500
-        )
-        return sanitize_post(clean_russian_text(resp.choices[0].message.content))
-    except Exception as e:
-        print(f"⚠️ AI error (skipping): {e}")
-        return None
+    system_prompt = """Ты — русский журналист о технологиях. Пиши ПРОСТЫМ и ПОНЯТНЫМ русским языком, как живой человек.
+Правила:
+- Короткие предложения. Простые слова.
+- Никакого канцелярита и машинного перевода.
+- Заголовок — ясная суть новости за 5-8 слов, без загадок.
+- Только русский язык, кириллица и эмодзи. Никаких иероглифов.
+- До 800 символов."""
+    user_prompt = f"""Английская новость: {news['title']}
+Кратко: {news['summary']}
+
+Перескажи её ПО-РУССКИ своими словами, просто и понятно:
+🔥 Заголовок — простыми словами суть (5-8 слов)
+Два абзаца: что случилось и почему это важно
+💡 Инсайт: одно предложение простыми словами
+👇 Вопрос читателям
+3 хештега на русском"""
+    for attempt in range(3):
+        try:
+            resp = client.chat.completions.create(
+                model=config.MODEL_NAME,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=0.7,
+                max_tokens=600
+            )
+            return sanitize_post(clean_russian_text(resp.choices[0].message.content))
+        except Exception as e:
+            print(f"⚠️ Попытка {attempt+1}/3 не удалась: {str(e)[:50]}")
+            if attempt < 2:
+                time.sleep(30)
+    return None
 
 def generate_image_prompt(news):
     prompt = f"Create short English prompt (2 sentences) for digital art about: {news['title']}. Modern, futuristic, bright, NO text. Only the prompt."
-    try:
-        resp = client.chat.completions.create(
+    for attempt in range(3):
+        try:
+            resp = client.chat.completions.create(
             model=config.MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.7
