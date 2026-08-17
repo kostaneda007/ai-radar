@@ -32,8 +32,8 @@ jobs:
           TELEGRAM_CHANNEL_ID = "@only_his_own_1"
           TELEGRAM_CHANNEL_LINK = "https://t.me/only_his_own_1"
           LLM_API_KEY = "$LLM"
-          LLM_BASE_URL = "https://openrouter.ai/api/v1"
-          MODEL_NAME = "openrouter/free"
+          LLM_BASE_URL = "https://api.mistral.ai/v1"
+          MODEL_NAME = "mistral-large-latest"
           VK_TOKEN = "$VK"
           VK_GROUP_ID = "67225562"
           RSS_FEEDS = {
